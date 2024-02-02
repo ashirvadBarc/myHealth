@@ -150,13 +150,13 @@ class _LoginScreenState extends State<LoginScreen> {
                               padding: EdgeInsets.only(top: 16.0),
                               child: InkWell(
                                 // onTap: () {
-                                //   showDialog(
+                                //   showDialogľ
                                 //       context: context,
                                 //       builder: (BuildContext context) {
                                 //         return AlertDialog(
                                 //           content: Column(
                                 //             mainAxisSize: MainAxisSize.min,
-                                //             mainAxisAlignment:
+                                //             mainAxisAlignment:l
                                 //                 MainAxisAlignment.center,
                                 //             children: [
                                 //               Padding(
