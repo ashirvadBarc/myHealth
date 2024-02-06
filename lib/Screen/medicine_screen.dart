@@ -8,7 +8,6 @@ import 'package:medical_app/constants/colors_const.dart';
 import 'package:medical_app/constants/image_const.dart';
 import 'package:medical_app/constants/string_const.dart';
 
-
 class MedicineScreen extends StatefulWidget {
   final int selectedIndex;
 
@@ -333,7 +332,7 @@ class _MedicineScreenState extends State<MedicineScreen> {
               ),
             ]),
           ),
-          const BottomContainer()
+          BottomContainer()
         ],
       ),
     );

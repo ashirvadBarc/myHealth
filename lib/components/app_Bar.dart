@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:medical_app/components/drawer.dart';
 import 'package:medical_app/constants/colors_const.dart';
 
 class CustomeAppBar extends StatelessWidget {
@@ -20,8 +21,13 @@ class CustomeAppBar extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const CircleAvatar(
-              backgroundImage: AssetImage('assets/user.png'),
+            InkWell(
+              onTap: () {
+                MyDrawer();
+              },
+              child: const CircleAvatar(
+                backgroundImage: AssetImage('assets/user.png'),
+              ),
             ),
             Image.asset(
               'assets/logo.png',

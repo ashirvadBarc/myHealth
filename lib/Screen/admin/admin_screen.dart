@@ -102,7 +102,7 @@ class AdminScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const BottomContainer()
+                  BottomContainer()
                 ],
               ),
             ),
