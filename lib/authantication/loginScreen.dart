@@ -137,7 +137,7 @@ class _LoginScreenState extends State<LoginScreen> {
   validateAndSave() async {
     final FormState form = _formKey.currentState!;
     if (form.validate()) {
-      updateUser();
+      await updateUser();
       return true;
     } else {
       return false;
@@ -157,7 +157,9 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    checkLoginStatus();
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      checkLoginStatus();
+    });
   }
 
   Widget build(BuildContext context) {

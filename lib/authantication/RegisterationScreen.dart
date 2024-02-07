@@ -36,7 +36,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   validateAndSave() async {
     final FormState form = _formKey.currentState!;
     if (form.validate()) {
-      AddUser();
+      await AddUser(); // Wait for AddUser to complete
       await Navigator.push(
           context, MaterialPageRoute(builder: (context) => HomeScreen()));
       return true;

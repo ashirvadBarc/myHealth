@@ -92,6 +92,7 @@ class _LabUploadState extends State<LabUpload> {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         elevation: 1,
         automaticallyImplyLeading: true,
         title: Image.asset(

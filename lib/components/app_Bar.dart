@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:medical_app/constants/colors_const.dart';
 
 class CustomeAppBar extends StatelessWidget {
   const CustomeAppBar({
@@ -39,18 +38,7 @@ class CustomeAppBar extends StatelessWidget {
     //           'assets/logo.png',
     //           scale: 2,
     //         ),
-    //         Container(
-    //           height: 40,
-    //           width: 40,
-    //           decoration: BoxDecoration(
-    //               color: Colors.blue, borderRadius: BorderRadius.circular(6)),
-    //           child: IconButton(
-    //               onPressed: () {},
-    //               icon: const Icon(
-    //                 Icons.notifications_outlined,
-    //                 color: Colors.black,
-    //               )),
-    //         )
+
     //       ],
     //     ),
     //   ),

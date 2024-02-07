@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:medical_app/Screen/lab_upload.dart';
 import 'package:medical_app/authantication/loginScreen.dart';
-import 'package:medical_app/components/app_Bar.dart';
-import 'package:medical_app/components/bottom_container.dart';
 import 'package:medical_app/components/drawer.dart';
 import 'package:medical_app/constants/colors_const.dart';
 import 'package:medical_app/constants/image_const.dart';
@@ -96,6 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
+          centerTitle: true,
           elevation: 1,
           automaticallyImplyLeading: true,
           title: Image.asset(
@@ -121,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             );
           }),
-          shape: ContinuousRectangleBorder(
+          shape: const ContinuousRectangleBorder(
             borderRadius: BorderRadius.only(
               bottomRight: Radius.circular(100), // Adjust the radius as needed
             ),
@@ -154,7 +153,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Column(
                           children: [
                             Image.asset(bannerImg),
-                            SizedBox(
+                            const SizedBox(
                               height: 25,
                             ),
                             GridView.builder(
