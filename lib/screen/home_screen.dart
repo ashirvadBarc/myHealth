@@ -104,15 +104,10 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           actions: [
             Padding(
-              padding: const EdgeInsets.only(right: 12),
-              child: IconButton(
-                  onPressed: () {},
-                  icon: const Icon(
-                    Icons.notifications_outlined,
-                    size: 25,
-                    color: Colors.black,
-                  )),
-            )
+                padding: const EdgeInsets.only(right: 12),
+                child: InkWell(
+                    onTap: () {},
+                    child: Image.asset('assets/notification-icon.png')))
           ],
           backgroundColor: whiteColor,
           leading: Builder(builder: (context) {
