@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:medical_app/Screen/lab_upload.dart';
+import 'package:medical_app/authantication/loginScreen.dart';
 import 'package:medical_app/components/app_Bar.dart';
 import 'package:medical_app/components/bottom_container.dart';
+import 'package:medical_app/components/drawer.dart';
 import 'package:medical_app/constants/colors_const.dart';
 import 'package:medical_app/constants/image_const.dart';
 import 'package:medical_app/constants/string_const.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   final selectedindex;
@@ -89,13 +92,49 @@ class _HomeScreenState extends State<HomeScreen> {
           },
         );
 
-        return shouldPop ??
-            false; // Return true if null or false, otherwise return the value from the dialog
+        return shouldPop; // Return true if null or false, otherwise return the value from the dialog
       },
       child: Scaffold(
+        appBar: AppBar(
+          elevation: 1,
+          automaticallyImplyLeading: true,
+          title: Image.asset(
+            'assets/logo.png',
+            scale: 5,
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: IconButton(
+                  onPressed: () {},
+                  icon: const Icon(
+                    Icons.notifications_outlined,
+                    size: 25,
+                    color: Colors.black,
+                  )),
+            )
+          ],
+          backgroundColor: whiteColor,
+          leading: Builder(builder: (context) {
+            return InkWell(
+              onTap: () {
+                Scaffold.of(context).openDrawer();
+              },
+              child: Image.asset(
+                'assets/user.png',
+                scale: 14,
+              ),
+            );
+          }),
+          shape: ContinuousRectangleBorder(
+            borderRadius: BorderRadius.only(
+              bottomRight: Radius.circular(100), // Adjust the radius as needed
+            ),
+          ),
+        ),
+        drawer: const MyDrawer(),
         body: Column(
           children: [
-            const CustomeAppBar(),
             const SizedBox(
               height: 25,
             ),
@@ -120,6 +159,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Column(
                           children: [
                             Image.asset(bannerImg),
+                            SizedBox(
+                              height: 25,
+                            ),
                             GridView.builder(
                                 physics: const NeverScrollableScrollPhysics(),
                                 itemCount: gridImages.length,
@@ -192,30 +234,76 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Container(
-                height: 50,
-                width: 150,
-                decoration: BoxDecoration(
-                    border: Border.all(
-                      color: darkGreenColor,
-                    ),
-                    borderRadius: BorderRadius.circular(6)),
-                child: const Center(
-                  child: Text(
-                    logOutText,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16,
-                      color: darkGreenColor,
+                padding: const EdgeInsets.only(bottom: 12),
+                child: InkWell(
+                  onTap: () {
+                    _logout();
+                  },
+                  child: Container(
+                    height: 50,
+                    width: 150,
+                    decoration: BoxDecoration(
+                        border: Border.all(
+                          color: darkGreenColor,
+                        ),
+                        borderRadius: BorderRadius.circular(6)),
+                    child: const Center(
+                      child: Text(
+                        logOutText,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                          color: darkGreenColor,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-            )
+                ))
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _logout() async {
+    // Set the login status to false
+
+    print('-----1');
+    await saveLoginStatus(false);
+
+    // ignore: use_build_context_synchronously
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Logout"),
+          content: const Text("Are you sure you want to log out?"),
+          actions: [
+            TextButton(
+              child: const Text("No"),
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+            ),
+            TextButton(
+              child: const Text("Yes"),
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    // Navigate to the login screen
+  }
+
+  Future<void> saveLoginStatus(bool isLoggedIn) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('isLoggedIn', isLoggedIn);
   }
 }

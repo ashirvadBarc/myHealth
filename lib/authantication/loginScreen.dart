@@ -4,11 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:medical_app/Screen/home_screen.dart';
 import 'package:medical_app/authantication/OtpScreen.dart';
 import 'package:medical_app/authantication/RegisterationScreen.dart';
-import 'package:medical_app/constants/ApiConst.dart';
 import 'package:medical_app/constants/colors_const.dart';
 import 'package:medical_app/constants/image_const.dart';
-import 'package:medical_app/routes.dart';
-import 'package:medical_app/utilities/apiClients.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -47,8 +44,8 @@ class _LoginScreenState extends State<LoginScreen> {
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode({
-          "userName": 'gourav@gmail.com',
-          "password": '123456789',
+          "userName": emailController.text,
+          "password": passController.text,
         }),
       );
 
@@ -59,22 +56,73 @@ class _LoginScreenState extends State<LoginScreen> {
         // Request successful, handle the response as needed
         print('Response: ${response.body}');
         // Save user login status
+        // Do whatever you need with the response data
+
         await saveLoginStatus(true);
-        // Navigate to the home screen
+
+        // // Navigate to the home screen
         await Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => HomeScreen()));
       } else {
         // Request failed, handle the error
         print(
             'Error - Status Code: ${response.statusCode}, Body: ${response.body}');
-        // You might want to show an error message to the user here
+        // Display a meaningful error message to the user
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Login failed. Please check your credentials.'),
+          ),
+        );
       }
     } catch (e) {
       // Handle exceptions
       print('Error: $e');
-      // You might want to show an error message to the user here
+      // Display a meaningful error message to the user
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content:
+              Text('An unexpected error occurred. Please try again later.'),
+        ),
+      );
     }
   }
+
+  // Future<void> updateUser() async {
+  //   try {
+  //     final response = await http.post(
+  //       Uri.parse(
+  //           'http://ec2-54-159-209-201.compute-1.amazonaws.com:8080/user-api/validate'),
+  //       headers: <String, String>{
+  //         'Content-Type': 'application/json; charset=UTF-8',
+  //       },
+  //       body: {
+  //         "userName": emailController.text,
+  //         "password": passController.text,
+  //       },
+  //     );
+
+  //     emailController.clear();
+  //     passController.clear();
+  //     if (response.statusCode == 200) {
+  //       // Request successful, handle the response as needed
+  //       print('Response: ${response.body}');
+  //       // Save user login status
+  // await saveLoginStatus(true);
+  // // Navigate to the home screen
+  // await Navigator.pushReplacement(
+  //     context, MaterialPageRoute(builder: (context) => HomeScreen()));
+  //     } else {
+  //       // Request failed, handle the error
+  //       print(
+  //           'Error - Status Code: ${response.statusCode}, Body: ${response.body}');
+  //       // You might want to show an error message to the user here
+  //     }
+  //   } catch (e) {
+  //     // Handle exceptions
+  //     print('Error: $e');
+  //     // You might want to show an error message to the user here
+  //   }
+  // }
 
   Future<void> saveLoginStatus(bool isLoggedIn) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -390,20 +438,20 @@ class _LoginScreenState extends State<LoginScreen> {
                                                           vertical: 12.0,
                                                           horizontal: 16.0),
                                                 ),
-                                                validator: (authResult) {
-                                                  if (authResult!.isEmpty ||
-                                                      !RegExp(r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")
-                                                          .hasMatch(
-                                                              authResult)) {
-                                                    return 'Please enter a valid email';
-                                                  }
+                                                // validator: (authResult) {
+                                                //   if (authResult!.isEmpty ||
+                                                //       !RegExp(r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")
+                                                //           .hasMatch(
+                                                //               authResult)) {
+                                                //     return 'Please enter a valid email';
+                                                //   }
 
-                                                  if (!_isGmail(authResult)) {
-                                                    return 'Please enter a valid email address';
-                                                  }
+                                                //   if (!_isGmail(authResult)) {
+                                                //     return 'Please enter a valid email address';
+                                                //   }
 
-                                                  return null;
-                                                },
+                                                //   return null;
+                                                // },
                                                 keyboardType:
                                                     TextInputType.emailAddress,
                                               ),
@@ -419,7 +467,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                                     color: authscreenTextcolor),
                                               )),
                                           Padding(
-                                            padding: EdgeInsets.symmetric(
+                                            padding: const EdgeInsets.symmetric(
                                                 vertical: 10.0),
                                             child: Container(
                                               decoration: BoxDecoration(
@@ -431,9 +479,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                                 controller: passController,
                                                 obscureText: _obsecureText,
                                                 decoration: InputDecoration(
-                                                  border: OutlineInputBorder(),
+                                                  border:
+                                                      const OutlineInputBorder(),
                                                   hintText: 'password',
-                                                  hintStyle: TextStyle(
+                                                  hintStyle: const TextStyle(
                                                       color: Color(0xff747474),
                                                       fontSize: 13,
                                                       fontWeight:
@@ -446,7 +495,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                                           ? Icons.lock_outline
                                                           : Icons.lock_open)),
                                                   contentPadding:
-                                                      EdgeInsets.symmetric(
+                                                      const EdgeInsets
+                                                          .symmetric(
                                                           vertical: 12.0,
                                                           horizontal: 16.0),
                                                 ),

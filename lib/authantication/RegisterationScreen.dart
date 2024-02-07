@@ -2,11 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:medical_app/Screen/home_screen.dart';
-import 'package:medical_app/authantication/loginScreen.dart';
-import 'package:medical_app/constants/ApiConst.dart';
 import 'package:medical_app/constants/colors_const.dart';
 import 'package:medical_app/constants/image_const.dart';
-import 'package:medical_app/utilities/apiClients.dart';
 
 import 'package:http/http.dart' as http;
 
@@ -22,7 +19,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passController = TextEditingController();
-  final TextEditingController userName = TextEditingController();
+  final TextEditingController userNameController = TextEditingController();
   final TextEditingController DOBcontroller = TextEditingController();
   final TextEditingController pinController = TextEditingController();
   final TextEditingController firstName = TextEditingController();
@@ -66,7 +63,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           "mobileNumber": phoneController.text,
           "profileAvatar": "string",
           "type": "string",
-          "userName": userName.text,
+          "userName": userNameController.text,
           "creationDate": "2024-01-29T08:57:00.445Z"
         }),
       );
@@ -135,13 +132,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         decoration: BoxDecoration(
                           border: Border.all(color: blueColor, width: 2),
                           color: Colors.transparent,
-                          // image: DecorationImage(
-                          //   image: AssetImage(
-                          //     bgImg,
-                          //   ),
-                          //   filterQuality: FilterQuality.high,
-                          //   fit: BoxFit.fitWidth,
-                          // ),
                           borderRadius: const BorderRadius.only(
                             topRight: Radius.circular(35),
                             topLeft: Radius.circular(35),
@@ -295,7 +285,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                                 borderRadius:
                                                     BorderRadius.circular(12)),
                                             child: TextFormField(
-                                              controller: userName,
+                                              controller: userNameController,
                                               decoration: const InputDecoration(
                                                 border: OutlineInputBorder(),
                                                 hintText: 'Select Username',
@@ -326,14 +316,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         const Padding(
                                           padding: EdgeInsets.only(left: 16.0),
                                           child: Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: Text(
-                                                "Password",
-                                                style: TextStyle(
-                                                    fontSize: 15,
-                                                    fontWeight: FontWeight.w500,
-                                                    color: authscreenTextcolor),
-                                              )),
+                                            alignment: Alignment.centerLeft,
+                                            child: Text(
+                                              "Password",
+                                              style: TextStyle(
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: authscreenTextcolor),
+                                            ),
+                                          ),
                                         ),
                                         Padding(
                                           padding: const EdgeInsets.symmetric(
@@ -546,7 +537,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                                 borderRadius:
                                                     BorderRadius.circular(12)),
                                             child: TextFormField(
-                                              controller: passController,
+                                              controller: DOBcontroller,
                                               decoration: const InputDecoration(
                                                 border: OutlineInputBorder(),
                                                 hintText: 'Enter Your DOB',

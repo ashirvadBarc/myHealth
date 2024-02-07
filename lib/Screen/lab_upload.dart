@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:medical_app/Screen/medicine_screen.dart';
 import 'package:medical_app/components/app_Bar.dart';
 import 'package:medical_app/components/bottom_container.dart';
+import 'package:medical_app/components/drawer.dart';
 import 'package:medical_app/constants/colors_const.dart';
 import 'package:medical_app/constants/image_const.dart';
 import 'package:medical_app/constants/string_const.dart';
@@ -90,9 +91,46 @@ class _LabUploadState extends State<LabUpload> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
+      appBar: AppBar(
+        elevation: 1,
+        automaticallyImplyLeading: true,
+        title: Image.asset(
+          'assets/logo.png',
+          scale: 5,
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: IconButton(
+                onPressed: () {},
+                icon: const Icon(
+                  Icons.notifications_outlined,
+                  size: 25,
+                  color: Colors.black,
+                )),
+          )
+        ],
+        backgroundColor: whiteColor,
+        leading: Builder(builder: (context) {
+          return InkWell(
+            onTap: () {
+              Scaffold.of(context).openDrawer();
+            },
+            child: Image.asset(
+              'assets/user.png',
+              scale: 14,
+            ),
+          );
+        }),
+        shape: ContinuousRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomRight: Radius.circular(100), // Adjust the radius as needed
+          ),
+        ),
+      ),
+      drawer: const MyDrawer(),
       body: Column(
         children: [
-          const CustomeAppBar(),
           const SizedBox(
             height: 25,
           ),
@@ -184,7 +222,7 @@ class _LabUploadState extends State<LabUpload> {
                     ),
                   ),
                   SizedBox(
-                    height: size.height / 4.5,
+                    height: size.height / 3.2,
                   )
                 ],
               ),
