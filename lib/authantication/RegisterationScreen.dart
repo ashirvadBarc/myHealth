@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:medical_app/Screen/home_screen.dart';
+import 'package:medical_app/authantication/loginScreen.dart';
 import 'package:medical_app/constants/colors_const.dart';
 import 'package:medical_app/constants/image_const.dart';
 
@@ -38,7 +39,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (form.validate()) {
       await AddUser(); // Wait for AddUser to complete
       await Navigator.push(
-          context, MaterialPageRoute(builder: (context) => HomeScreen()));
+          context, MaterialPageRoute(builder: (context) => LoginScreen()));
       return true;
     } else {
       return false;
@@ -57,7 +58,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           "password": passController.text,
           "firstName": firstName.text,
           "lastName": LastName.text,
-          "email": emailController.text,
+          "email": userNameController.text,
           "yearOfBirth": DOBcontroller.text,
           "pin": pinController.text,
           "mobileNumber": phoneController.text,
@@ -384,7 +385,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                                 borderRadius:
                                                     BorderRadius.circular(12)),
                                             child: TextFormField(
-                                              controller: emailController,
+                                              controller: userNameController,
                                               decoration: const InputDecoration(
                                                 border: OutlineInputBorder(),
                                                 hintText: 'Your email id...',

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:medical_app/Screen/home_screen.dart';
 import 'package:medical_app/authantication/loginScreen.dart';
 import 'package:medical_app/routes.dart';
 
