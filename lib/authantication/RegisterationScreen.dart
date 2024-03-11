@@ -1,12 +1,15 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:medical_app/Screen/home_screen.dart';
+import 'package:flutter/services.dart';
 import 'package:medical_app/authantication/loginScreen.dart';
 import 'package:medical_app/constants/colors_const.dart';
 import 'package:medical_app/constants/image_const.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:medical_app/models/userModel.dart';
+import 'package:medical_app/routes.dart';
+import 'package:medical_app/utilities/database_provider.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -17,6 +20,8 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
+
+  DatabaseProvider db = DatabaseProvider();
 
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passController = TextEditingController();
@@ -37,50 +42,158 @@ class _RegisterScreenState extends State<RegisterScreen> {
   validateAndSave() async {
     final FormState form = _formKey.currentState!;
     if (form.validate()) {
-      await AddUser(); // Wait for AddUser to complete
-      await Navigator.push(
-          context, MaterialPageRoute(builder: (context) => LoginScreen()));
-      return true;
+      // Show loading indicator while addUser() is executing
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return const AlertDialog(
+            content: Row(
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(width: 20),
+                Text("Adding user..."),
+              ],
+            ),
+          );
+        },
+        barrierDismissible: false,
+      );
+
+      try {
+        // Wait for AddUser to complete
+        await addUser();
+
+        // Dismiss the loading indicator
+        Navigator.pop(context);
+
+        // Navigate to the login screen
+        await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
+        return true;
+      } catch (e) {
+        // Handle exceptions
+        print('Error: $e');
+        // Optionally, provide user feedback about the exception
+
+        // Dismiss the loading indicator in case of an error
+        Navigator.pop(context);
+
+        return false;
+      }
     } else {
       return false;
     }
   }
 
-  AddUser() async {
+  Future<void> addUser() async {
     try {
-      final response = await http.post(
-        Uri.parse(
-            "http://ec2-54-159-209-201.compute-1.amazonaws.com:8080/user-api/add"),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode({
-          "password": passController.text,
-          "firstName": firstName.text,
-          "lastName": LastName.text,
-          "email": userNameController.text,
-          "yearOfBirth": DOBcontroller.text,
-          "pin": pinController.text,
-          "mobileNumber": phoneController.text,
-          "profileAvatar": "string",
-          "type": "string",
-          "userName": userNameController.text,
-          "creationDate": "2024-01-29T08:57:00.445Z"
-        }),
-      );
+      if (userNameController.text.isNotEmpty &&
+          LastName.text.isNotEmpty &&
+          firstName.text.isNotEmpty &&
+          passController.text.isNotEmpty &&
+          emailController.text.isNotEmpty &&
+          phoneController.text.isNotEmpty &&
+          pinController.text.isNotEmpty &&
+          DOBcontroller.text.isNotEmpty) {
+        final response = await http.post(
+          Uri.parse(
+              "http://ec2-54-159-209-201.compute-1.amazonaws.com:8080/user-api/add"),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: jsonEncode({
+            "password": passController.text,
+            "firstName": firstName.text,
+            "lastName": LastName.text,
+            "email": emailController.text,
+            "yearOfBirth": DOBcontroller.text,
+            "pin": pinController.text,
+            "mobileNumber": phoneController.text,
+            "profileAvatar": "string",
+            "type": "string",
+            "userName": userNameController.text,
+            "creationDate": "2024-01-29T08:57:00.445Z"
+          }),
+        );
 
-      if (response.statusCode == 200) {
-        // Request successful, handle the response as needed
-        print('Response: ${response.body}');
+        var user = UserModel(
+          firstName: firstName.text,
+          lastName: LastName.text,
+          email: emailController.text,
+          dob: DOBcontroller.text,
+          pin: pinController.text,
+          phone: phoneController.text,
+          password: passController.text,
+          userName: userNameController.text,
+        );
+
+        print('----------register use  response-------------${response.body}');
+
+        print("-----register user ------------- $user");
+        print("-----register user ------------- ${user.userName}");
+        print("-----register user ------------- ${user.dob}");
+        print("-----register user ------------- ${user.email}");
+        print("-----register user ------------- ${user.phone}");
+        print("-----register user ------------- ${user.pin}");
+
+        await DatabaseProvider.clearUserTable();
+
+        await DatabaseProvider.insertUser(user).then((value) {
+          firstName.clear();
+          LastName.clear();
+          emailController.clear();
+          DOBcontroller.clear();
+          pinController.clear();
+          phoneController.clear();
+          passController.clear();
+          userNameController.clear();
+
+          Navigator.pushNamedAndRemoveUntil(
+              context, loginScreen, (route) => false);
+        });
       } else {
-        // Request failed, handle the error
-        print(
-            'Error - Status Code: ${response.statusCode}, Body: ${response.body}');
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Something went wrong')));
       }
     } catch (e) {
-      // Handle exceptions
-      print('Error: $e');
+      showLogoutDialog(BuildContext context) {
+        Widget continueButton = TextButton(
+          child: const Text(
+            "Ok",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          onPressed: () async {},
+        );
+
+        // set up the AlertDialog
+        AlertDialog alert = AlertDialog(
+          title: const Text("Confirm Logout"),
+          content: Text(
+            "$e",
+          ),
+          actions: [
+            continueButton,
+          ],
+        );
+
+        // show the dialog
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return alert;
+          },
+        );
+      }
     }
+  }
+
+  bool _obsecureText = true;
+  void passVisibility() {
+    setState(() {
+      _obsecureText = !_obsecureText;
+    });
   }
 
   @override
@@ -336,21 +449,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                                 borderRadius:
                                                     BorderRadius.circular(12)),
                                             child: TextFormField(
+                                              obscureText: _obsecureText,
                                               controller: passController,
-                                              decoration: const InputDecoration(
-                                                border: OutlineInputBorder(),
+                                              decoration: InputDecoration(
+                                                border:
+                                                    const OutlineInputBorder(),
                                                 hintText: 'Password',
-                                                hintStyle: TextStyle(
+                                                hintStyle: const TextStyle(
                                                     color: Color(0xff747474),
                                                     fontSize: 13,
                                                     fontWeight:
                                                         FontWeight.w400),
-                                                suffixIcon: Icon(
-                                                  Icons.lock,
-                                                  color: Color(0xff747474),
-                                                ),
+                                                suffixIcon: IconButton(
+                                                    onPressed: () {
+                                                      passVisibility();
+                                                    },
+                                                    icon: Icon(_obsecureText
+                                                        ? Icons.lock_outline
+                                                        : Icons.lock_open)),
                                                 contentPadding:
-                                                    EdgeInsets.symmetric(
+                                                    const EdgeInsets.symmetric(
                                                         vertical: 12.0,
                                                         horizontal: 16.0),
                                               ),
@@ -385,7 +503,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                                 borderRadius:
                                                     BorderRadius.circular(12)),
                                             child: TextFormField(
-                                              controller: userNameController,
+                                              controller: emailController,
                                               decoration: const InputDecoration(
                                                 border: OutlineInputBorder(),
                                                 hintText: 'Your email id...',
@@ -440,7 +558,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                                 borderRadius:
                                                     BorderRadius.circular(12)),
                                             child: TextFormField(
+                                              inputFormatters: [
+                                                FilteringTextInputFormatter
+                                                    .digitsOnly,
+                                                LengthLimitingTextInputFormatter(
+                                                    10)
+                                              ],
                                               controller: phoneController,
+                                              keyboardType: TextInputType.phone,
                                               decoration: const InputDecoration(
                                                 border: OutlineInputBorder(),
                                                 hintText: 'Enter Mobile Number',
@@ -490,6 +615,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                                     BorderRadius.circular(12)),
                                             child: TextFormField(
                                               controller: pinController,
+                                              keyboardType: TextInputType.phone,
                                               decoration: const InputDecoration(
                                                 border: OutlineInputBorder(),
                                                 hintText: 'Enter your Pin',
@@ -507,10 +633,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                                         vertical: 12.0,
                                                         horizontal: 16.0),
                                               ),
+                                              inputFormatters: [
+                                                FilteringTextInputFormatter
+                                                    .digitsOnly,
+                                                LengthLimitingTextInputFormatter(
+                                                    6)
+                                              ],
                                               validator: (value) {
                                                 if (value == null ||
                                                     value.isEmpty) {
                                                   return 'Please enter your pin';
+                                                } else if (value.length > 6) {
+                                                  return 'Pin must be exactly 6 digits';
                                                 }
                                                 return null;
                                               },
@@ -539,14 +673,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                                     BorderRadius.circular(12)),
                                             child: TextFormField(
                                               controller: DOBcontroller,
+                                              readOnly:
+                                                  true, // Set to true to make the field non-editable
                                               decoration: const InputDecoration(
                                                 border: OutlineInputBorder(),
                                                 hintText: 'Enter Your DOB',
                                                 hintStyle: TextStyle(
-                                                    color: Color(0xff747474),
-                                                    fontSize: 13,
-                                                    fontWeight:
-                                                        FontWeight.w400),
+                                                  color: Color(0xff747474),
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.w400,
+                                                ),
                                                 suffixIcon: Icon(
                                                   Icons.calendar_month,
                                                   color: Color(0xff747474),
@@ -562,6 +698,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                                   return 'Please enter your DOB';
                                                 }
                                                 return null;
+                                              },
+                                              onTap: () async {
+                                                DateTime? selectedDate =
+                                                    await showDatePicker(
+                                                  context: context,
+                                                  initialDate: DateTime.now(),
+                                                  firstDate: DateTime(1900),
+                                                  lastDate: DateTime.now(),
+                                                );
+
+                                                if (selectedDate != null) {
+                                                  DOBcontroller.text =
+                                                      selectedDate
+                                                          .toLocal()
+                                                          .toString()
+                                                          .split(' ')[0];
+                                                }
                                               },
                                             ),
                                           ),
@@ -601,25 +754,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 ],
                               ),
                               GestureDetector(
-                                  onTap: () {},
-                                  child: RichText(
-                                      text: const TextSpan(children: [
-                                    TextSpan(
-                                      text: 'Already have an account? ',
-                                      style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.w500,
-                                          color: authscreenTextcolor),
-                                    ),
-                                    TextSpan(
-                                      text: ' Sign In',
-                                      style: TextStyle(
-                                          decoration: TextDecoration.underline,
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.w500,
-                                          color: authscreenTextcolor),
-                                    )
-                                  ]))),
+                                onTap: () {},
+                                child: RichText(
+                                  text: const TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: 'Already have an account? ',
+                                        style: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w500,
+                                            color: authscreenTextcolor),
+                                      ),
+                                      TextSpan(
+                                        text: ' Sign In',
+                                        style: TextStyle(
+                                            decoration:
+                                                TextDecoration.underline,
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w500,
+                                            color: authscreenTextcolor),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
                               const SizedBox(
                                 height: 150,
                               )

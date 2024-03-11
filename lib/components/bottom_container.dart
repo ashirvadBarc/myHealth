@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:medical_app/authantication/loginScreen.dart';
 import 'package:medical_app/constants/colors_const.dart';
 import 'package:medical_app/constants/string_const.dart';
+import 'package:medical_app/routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class BottomContainer extends StatefulWidget {
@@ -76,39 +77,60 @@ class _BottomContainerState extends State<BottomContainer> {
   }
 
   Future<void> _logout() async {
-    // Set the login status to false
+    try {
+      print('-----1');
+      await showLogoutDialog(context);
+    } catch (e) {
+      print("----error from login---$e");
+    }
+  }
 
-    print('-----1');
-    await saveLoginStatus(false);
-
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Logout"),
-          content: const Text("Are you sure you want to log out?"),
-          actions: [
-            TextButton(
-              child: const Text("No"),
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-            ),
-            TextButton(
-              child: const Text("Yes"),
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
-                );
-              },
-            ),
-          ],
-        );
+  Future<void> showLogoutDialog(BuildContext context) async {
+    // set up the buttons
+    Widget cancelButton = TextButton(
+      child: const Text(
+        "Cancel",
+        style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+      ),
+      onPressed: () {
+        Navigator.of(context, rootNavigator: true).pop('dialog');
       },
     );
 
-    // Navigate to the login screen
+    Widget continueButton = TextButton(
+      child: const Text(
+        "Continue",
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
+      onPressed: () async {
+        print('----continue button tapped');
+        await saveLoginStatus(false);
+        Navigator.pushReplacementNamed(context, loginScreen);
+
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('User LogOut Successfully')));
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: const Text("Confirm Logout"),
+      content: Text(
+        " Are you sure to logout from this device.",
+      ),
+      actions: [
+        cancelButton,
+        continueButton,
+      ],
+    );
+
+    // show the dialog
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
   }
 
   Future<void> saveLoginStatus(bool isLoggedIn) async {

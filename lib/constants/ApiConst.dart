@@ -9,6 +9,6 @@ const String showDeals = '/user-api/showdeals';
 const String userActivity = '/user-api/logUserActivity';
 const String add = '/user-api/add';
 /////////////////////////////////post/////////////////////////////
-const String getUser = '/user-controller/getUser';
+const String getUserDataEndpoint = '/user-api/users/';
 const String unsubscribe = '/user-api/unsubscribe/{userName}';
 const String subscribe = '/user-api/subscribe/{userName}';

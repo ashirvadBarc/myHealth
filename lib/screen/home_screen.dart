@@ -5,6 +5,8 @@ import 'package:medical_app/components/drawer.dart';
 import 'package:medical_app/constants/colors_const.dart';
 import 'package:medical_app/constants/image_const.dart';
 import 'package:medical_app/constants/string_const.dart';
+import 'package:medical_app/models/userModel.dart';
+import 'package:medical_app/routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -38,6 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
 
   final ScrollController controller = ScrollController();
+  UserModel user = UserModel();
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +108,9 @@ class _HomeScreenState extends State<HomeScreen> {
             Padding(
                 padding: const EdgeInsets.only(right: 12),
                 child: InkWell(
-                    onTap: () {},
+                    onTap: () {
+                      print("--username--------${user.userName}");
+                    },
                     child: Image.asset('assets/notification-icon.png')))
           ],
           backgroundColor: whiteColor,
@@ -260,44 +265,68 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _logout() async {
-    // Set the login status to false
-
-    print('-----1');
-    await saveLoginStatus(false);
-
-    // ignore: use_build_context_synchronously
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Logout"),
-          content: const Text("Are you sure you want to log out?"),
-          actions: [
-            TextButton(
-              child: const Text("No"),
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-            ),
-            TextButton(
-              child: const Text("Yes"),
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
-                );
-              },
-            ),
-          ],
-        );
-      },
-    );
-
-    // Navigate to the login screen
+    try {
+      print('-----1');
+      await showLogoutDialog(context);
+    } catch (e) {
+      print("----error from login---$e");
+    }
   }
 
   Future<void> saveLoginStatus(bool isLoggedIn) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool('isLoggedIn', isLoggedIn);
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isLoggedIn', isLoggedIn);
+    } catch (e) {
+      print("Error saving login status: $e");
+    }
+  }
+
+  Future<void> showLogoutDialog(BuildContext context) async {
+    // set up the buttons
+    Widget cancelButton = TextButton(
+      child: const Text(
+        "Cancel",
+        style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+      ),
+      onPressed: () {
+        Navigator.of(context, rootNavigator: true).pop('dialog');
+      },
+    );
+
+    Widget continueButton = TextButton(
+      child: const Text(
+        "Continue",
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
+      onPressed: () async {
+        print('----continue button tapped');
+        await saveLoginStatus(false);
+        Navigator.pushReplacementNamed(context, loginScreen);
+
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('User LogOut Successfully')));
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: const Text("Confirm Logout"),
+      content: Text(
+        "${user.userName}, Are you sure to logout from this device.",
+      ),
+      actions: [
+        cancelButton,
+        continueButton,
+      ],
+    );
+
+    // show the dialog
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
   }
 }

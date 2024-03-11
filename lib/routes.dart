@@ -4,15 +4,16 @@ import 'package:medical_app/Screen/medicine_screen.dart';
 import 'package:medical_app/authantication/loginScreen.dart';
 
 const intialroute = "/";
-const loginScreen = "/LoginScreen";
+const loginScreen = "/loginScreen";
 
-const homeScreen = "/HomeScreen";
+const homeScreen = "/home_screen";
 // ignore: constant_identifier_names
-const labUpload = "/LabUpload";
+const labUpload = "/lab_upload";
 // ignore: constant_identifier_names
-const medi_screen = "/MediScreen";
+const medi_screen = "/medicine_screen";
 
 final route = {
+  // intialroute: (context) => const LoginScreen(),
   loginScreen: (context) => const LoginScreen(),
   homeScreen: (context) => HomeScreen(),
   labUpload: (context) => const LabUpload(),

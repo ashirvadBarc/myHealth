@@ -8,10 +8,8 @@ class ApiClient {
 
   Future<dynamic> callGetAPI(String endpoint) async {
     try {
-      http.Response response = await http.get(Uri.parse('$baseURL+$endpoint}'),
-          headers: {
-            "Content-Type": "Application/json"
-          }); //using JWT token for WP authentication is not needed
+      http.Response response = await http.get(Uri.parse('$baseURL$endpoint}'),
+          headers: {"Content-Type": "Application/json"});
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
@@ -23,16 +21,20 @@ class ApiClient {
     }
   }
 
-  Future<dynamic> callPostAPI(String EnterEndpoint, Map body) async {
+  Future<dynamic> callPostAPI(String enterEndpoint, Map body) async {
     try {
-      http.Response response = await http
-          .post(Uri.parse("$baseURL+$EnterEndpoint"), body: {
-        jsonEncode(body)
-      }); //using JWT token for WP authentication is not needed
+      final http.Response response = await http.post(
+        Uri.parse('$baseURL$enterEndpoint'),
+        headers: {
+          'Content-Type': 'application/json', // Add this line
+        },
+        body: jsonEncode(body),
+      );
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
       } else {
+        // If the response is not JSON, return the boolean directly
         throw jsonDecode(response.body);
       }
     } catch (e) {

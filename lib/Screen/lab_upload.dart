@@ -218,7 +218,7 @@ class _LabUploadState extends State<LabUpload> {
                     ),
                   ),
                   SizedBox(
-                    height: size.height / 3.2,
+                    height: size.height * .08,
                   )
                 ],
               ),
