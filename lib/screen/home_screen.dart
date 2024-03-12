@@ -7,6 +7,7 @@ import 'package:medical_app/constants/image_const.dart';
 import 'package:medical_app/constants/string_const.dart';
 import 'package:medical_app/models/userModel.dart';
 import 'package:medical_app/routes.dart';
+import 'package:medical_app/utilities/database_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -40,7 +41,25 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
 
   final ScrollController controller = ScrollController();
+
   UserModel user = UserModel();
+  DatabaseProvider db = DatabaseProvider();
+
+  getUser() async {
+    await db.retrieveUserFromTabe().then((value) {
+      setState(() {
+        user = value;
+      });
+
+      print(user.userName);
+    });
+  }
+
+  @override
+  void initState() {
+    getUser();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +70,8 @@ class _HomeScreenState extends State<HomeScreen> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: const Text("Are you sure you want to close the App?"),
+              title: Text(
+                  "${user.userName},Are you sure you want to close the App?"),
               actions: [
                 TextButton(
                   onPressed: () {
@@ -119,9 +139,19 @@ class _HomeScreenState extends State<HomeScreen> {
               onTap: () {
                 Scaffold.of(context).openDrawer();
               },
-              child: Image.asset(
-                'assets/user.png',
-                scale: 14,
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: CircleAvatar(
+                  backgroundColor: Colors.green,
+                  child: Text(
+                    user.userName.toString().substring(0, 2).toUpperCase(),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18.0,
+                      color: Colors.black, // Adjust the text color as needed
+                    ),
+                  ),
+                ),
               ),
             );
           }),

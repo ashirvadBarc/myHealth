@@ -51,62 +51,200 @@ class _LoginScreenState extends State<LoginScreen> {
       final url = Uri.parse(
         'http://ec2-54-159-209-201.compute-1.amazonaws.com:8080/user-api/validate',
       );
-      final response = {
-        'userName': emailController.text,
-        'password': passController.text,
-      };
 
-      print('API Response: ${response ?? 'null'}');
+      final response = await http.post(
+        url,
+        headers: {
+          'accept': '*/*',
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          'userName': emailController.text,
+          'password': passController.text,
+        }),
+      );
 
-      if (response == 200) {
-        if (response is bool) {
-          // User authentication successful
-          var user = UserModel(
-            userName: emailController.text,
-            password: passController.text,
-          );
+      final bool success = json.decode(response.body);
 
-          await DatabaseProvider.insertUser(user);
-          await saveLoginStatus(true);
+      print('Response Status Code: ${response.statusCode}');
+      print('Response Body: $success');
 
-          Navigator.pushNamedAndRemoveUntil(
-            context,
-            homeScreen,
-            (route) => false,
-          );
+      if (success == true) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return const AlertDialog(
+              content: Row(
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(width: 20),
+                  Text("Updating user..."),
+                ],
+              ),
+            );
+          },
+          barrierDismissible: false,
+        );
+        await saveLoginStatus(true);
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('User logged in successfully')),
-          );
-        } else {
-          // Handle the case where the response is not a boolean or is false
-          print('Error while updating user: Authentication failed');
-          // ScaffoldMessenger.of(context).showSnackBar(
-          //   const SnackBar(
-          //     content: Text('Login failed. Please check your credentials.'),
-          //   ),
-          // );
-        }
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          homeScreen,
+          (route) => false,
+        );
+        showDialog(
+            barrierDismissible: true,
+            context: context,
+            builder: (BuildContext context) {
+              Widget continueButton = TextButton(
+                child: Container(
+                  decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                          colors: [Color(0xff55BE00), Color(0xff3171DD)],
+                          end: Alignment.bottomRight,
+                          begin: Alignment.topLeft),
+                      borderRadius: BorderRadius.circular(7)),
+                  child: const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        "OK",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20),
+                      ),
+                    ),
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              );
+
+              return AlertDialog(
+                title: const Text("User logged in successfully"),
+                actions: [continueButton],
+                actionsAlignment: MainAxisAlignment.center,
+              );
+            });
       } else {
-        // Handle the case where the response is null
-        print('Error while updating user: Response is null');
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   const SnackBar(
-        //     content:
-        //         Text('An unexpected error occurred. Please try again later.'),
-        //   ),
-        // );
+        showDialog(
+            barrierDismissible: true,
+            context: context,
+            builder: (BuildContext context) {
+              Widget continueButton = TextButton(
+                child: Container(
+                  decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                          colors: [Color(0xff55BE00), Color(0xff3171DD)],
+                          end: Alignment.bottomRight,
+                          begin: Alignment.topLeft),
+                      borderRadius: BorderRadius.circular(7)),
+                  child: const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        "OK",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20),
+                      ),
+                    ),
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              );
+
+              return AlertDialog(
+                title: const Text("Invalide Credentials"),
+                actions: [continueButton],
+                actionsAlignment: MainAxisAlignment.center,
+              );
+            });
+
+        if (success == false) {
+          showDialog(
+              barrierDismissible: true,
+              context: context,
+              builder: (BuildContext context) {
+                Widget continueButton = TextButton(
+                  child: Container(
+                    decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                            colors: [Color(0xff55BE00), Color(0xff3171DD)],
+                            end: Alignment.bottomRight,
+                            begin: Alignment.topLeft),
+                        borderRadius: BorderRadius.circular(7)),
+                    child: const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text(
+                          "OK",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20),
+                        ),
+                      ),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                );
+
+                return AlertDialog(
+                  title: const Text("Login status is false"),
+                  actions: [continueButton],
+                  actionsAlignment: MainAxisAlignment.center,
+                );
+              });
+        }
       }
     } catch (e) {
-      print('Error while updating user: $e');
+      showDialog(
+          barrierDismissible: true,
+          context: context,
+          builder: (BuildContext context) {
+            Widget continueButton = TextButton(
+              child: Container(
+                decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                        colors: [Color(0xff55BE00), Color(0xff3171DD)],
+                        end: Alignment.bottomRight,
+                        begin: Alignment.topLeft),
+                    borderRadius: BorderRadius.circular(7)),
+                child: const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      "OK",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20),
+                    ),
+                  ),
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            );
 
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   SnackBar(
-      //     content: Text(
-      //       'An unexpected error occurred. Please try again later. $e',
-      //     ),
-      //   ),
-      // );
+            return AlertDialog(
+              title: const Text("Error while updating user"),
+              content: Text('$e}'),
+              actions: [continueButton],
+              actionsAlignment: MainAxisAlignment.center,
+            );
+          });
+    } finally {
+      Navigator.pop(context); // Dismiss the updating user pop-up
     }
   }
 
@@ -190,38 +328,14 @@ class _LoginScreenState extends State<LoginScreen> {
     final FormState form = _formKey.currentState!;
 
     if (form.validate()) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return const AlertDialog(
-            content: Row(
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(width: 20),
-                Text("Updating user..."),
-              ],
-            ),
-          );
-        },
-        barrierDismissible: false,
-      );
-
       try {
         await updateUser(context);
-
-        Navigator.pushNamedAndRemoveUntil(
-            context, homeScreen, (route) => false);
-
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('User logged in successfully')));
 
         return true;
       } catch (e) {
         // Handle exceptions
         print('Error:  ------in--validateAndSave  $e');
-        // Optionally, provide user feedback about the exception
 
-        // Dismiss the loading indicator in case of an error
         Navigator.pop(context);
 
         return false;
@@ -351,13 +465,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       decoration: BoxDecoration(
                         border: Border.all(color: blueColor, width: 2),
                         color: Colors.transparent,
-                        // image: const DecorationImage(
-                        //   image: AssetImage(
-                        //     bgImg,
-                        //   ),
-                        //   filterQuality: FilterQuality.high,
-                        //   fit: BoxFit.fitWidth,
-                        // ),
                         borderRadius: const BorderRadius.only(
                           topRight: Radius.circular(35),
                           topLeft: Radius.circular(35),
@@ -368,106 +475,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           children: [
                             const Padding(
                               padding: EdgeInsets.only(top: 16.0),
-                              child: InkWell(
-                                // onTap: () {
-                                //   showDialogľ
-                                //       context: context,
-                                //       builder: (BuildContext context) {
-                                //         return AlertDialog(
-                                //           content: Column(
-                                //             mainAxisSize: MainAxisSize.min,
-                                //             mainAxisAlignment:l
-                                //                 MainAxisAlignment.center,
-                                //             children: [
-                                //               Padding(
-                                //                 padding: const EdgeInsets.only(
-                                //                     bottom: 25),
-                                //                 child: Container(
-                                //                   height: 60,
-                                //                   width: 60,
-                                //                   decoration: BoxDecoration(
-                                //                       border: Border.all(
-                                //                           color: Colors.red),
-                                //                       borderRadius:
-                                //                           BorderRadius.circular(
-                                //                               50)),
-                                //                   child: const Icon(
-                                //                     Icons.close,
-                                //                     color: Colors.red,
-                                //                     size: 35,
-                                //                   ),
-                                //                 ),
-                                //               ),
-                                //               const Text(
-                                //                 'Oops...',
-                                //                 style: TextStyle(
-                                //                     fontWeight: FontWeight.bold,
-                                //                     color: Colors.black,
-                                //                     fontSize: 24),
-                                //               ),
-                                //               const Text(
-                                //                 'Wrong Answer!',
-                                //                 style: TextStyle(
-                                //                     fontWeight: FontWeight.w300,
-                                //                     color: Colors.black,
-                                //                     fontSize: 18),
-
-                                //               ),
-                                //               Padding(
-                                //                 padding:
-                                //                     const EdgeInsets.symmetric(
-                                //                         vertical: 10),
-                                //                 child: TextButton(
-                                //                   onPressed: () {
-                                //                     Navigator.of(context).pop();
-                                //                   },
-                                //                   child: Container(
-                                //                     width: 70,
-                                //                     decoration: BoxDecoration(
-                                //                         color: Color.fromARGB(
-                                //                             255, 130, 132, 223),
-                                //                         borderRadius:
-                                //                             BorderRadius
-                                //                                 .circular(7)),
-                                //                     child: const Center(
-                                //                       child: Padding(
-                                //                         padding:
-                                //                             EdgeInsets.all(5.0),
-                                //                         child: Text(
-                                //                           "OK",
-                                //                           style: TextStyle(
-                                //                               fontWeight:
-                                //                                   FontWeight
-                                //                                       .bold,
-                                //                               color:
-                                //                                   Colors.white,
-                                //                               fontSize: 20),
-                                //                         ),
-
-                                //                       ),
-                                //                     ),
-                                //                   ),
-                                //                 ),
-                                //               ),
-                                //               const Text(
-                                //                 'Right Answer is:',
-                                //                 style: TextStyle(
-                                //                     fontWeight: FontWeight.w300,
-                                //                     color: Colors.black,
-                                //                     fontSize: 18),
-                                //               ),
-                                //             ],
-                                //           ),
-                                //         );
-                                //       });
-                                // },
-                                child: Text(
-                                  "Welcome!",
-                                  style: TextStyle(
-                                    color: blueColor,
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                              child: Text(
+                                "Welcome!",
+                                style: TextStyle(
+                                  color: blueColor,
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                             ),
@@ -681,6 +694,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                     )
                                   ]))),
                             ),
+                            SizedBox(
+                              height: size.height / 2.5,
+                            )
                           ],
                         ),
                       ),

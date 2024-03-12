@@ -117,6 +117,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             "creationDate": "2024-01-29T08:57:00.445Z"
           }),
         );
+        await DatabaseProvider().clearUserTable();
 
         var user = UserModel(
           firstName: firstName.text,
@@ -130,17 +131,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
 
         print('----------register use  response-------------${response.body}');
+        print('----------  response  code-------------${response.statusCode}');
 
-        print("-----register user ------------- $user");
-        print("-----register user ------------- ${user.userName}");
-        print("-----register user ------------- ${user.dob}");
-        print("-----register user ------------- ${user.email}");
-        print("-----register user ------------- ${user.phone}");
-        print("-----register user ------------- ${user.pin}");
-
-        await DatabaseProvider.clearUserTable();
-
-        await DatabaseProvider.insertUser(user).then((value) {
+        await DatabaseProvider().insertUser(user).then((value) {
           firstName.clear();
           LastName.clear();
           emailController.clear();
@@ -169,7 +162,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
         // set up the AlertDialog
         AlertDialog alert = AlertDialog(
-          title: const Text("Confirm Logout"),
+          title: const Text("Error"),
           content: Text(
             "$e",
           ),

@@ -1,25 +1,19 @@
+import 'package:medical_app/constants/db_const.dart';
 import 'package:medical_app/models/userModel.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
 class DatabaseProvider {
-  static Database? _database;
-  static const String tableName = 'users';
+  Future<Database> initializedDB() async {
+    String path = await getDatabasesPath();
 
-  static Database? get databaseInstance => _database;
-
-  static Future<void> initDatabase() async {
-    if (_database != null) {
-      return;
-    }
-
-    try {
-      _database = await openDatabase(
-        join(await getDatabasesPath(), 'app_database.db'),
-        onCreate: (db, version) {
-          return db.execute(
-            '''
-              CREATE TABLE $tableName(
+    return await openDatabase(
+      join(path, 'app_database.db'),
+      version: 1,
+      onCreate: (db, version) {
+        return db.execute(
+          '''
+              CREATE TABLE $userTableName(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 firstName TEXT,
                 lastName TEXT,
@@ -31,65 +25,52 @@ class DatabaseProvider {
                 dob TEXT
               )
             ''',
-          );
-        },
-        version: 1,
-      );
-    } catch (e) {
-      // Handle database initialization error
-      print('Error initializing database: $e');
-    }
-  }
-
-  static Future<void> insertUser(UserModel user) async {
-    await _database!.insert(tableName, user.toJson());
-  }
-
-  static Future<void> updateUser(
-      int id, Map<String, dynamic> updatedUser) async {
-    await _database!.update(
-      tableName,
-      updatedUser,
-      where: 'id = ?',
-      whereArgs: [id],
+        );
+      },
     );
   }
 
-  static Future<void> deleteUser(int id) async {
-    await _database!.delete(
-      tableName,
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-  }
-
-  static Future<UserModel?> retrieveUserFromTable(String userName) async {
+  Future<bool> insertUser(UserModel user) async {
     try {
-      List<Map<String, dynamic>> result = await _database!.query(
-        tableName,
-        where: 'userName = ?',
-        whereArgs: [userName],
-      );
+      final db = await initializedDB();
+      await db.insert(userTableName, user.toJson(),
+          conflictAlgorithm: ConflictAlgorithm.replace);
 
-      if (result.isNotEmpty) {
-        // Assuming the query returns a single user with the provided username
-        return UserModel.fromJson(result.first);
-      } else {
-        // User not found
-        return null;
-      }
+      return true;
     } catch (e) {
-      // Handle database query error
-      print('Error retrieving user: $e');
-      return null;
+      print('---------------error during user insert--------$e');
+
+      return false;
     }
   }
 
-  static Future<void> clearUserTable() async {
-    await _database!.delete(tableName);
+  // delete db
+  Future<void> deleteUser(int id) async {
+    final db = await initializedDB();
+    await db.delete(
+      userTableName,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 
-  static Future<List<Map<String, dynamic>>> getUsers() async {
-    return await _database!.query(tableName);
+  // clean db
+  Future<void> clearUserTable() async {
+    final db = await initializedDB();
+    await db.delete(userTableName);
+  }
+
+  // retrieve data from database
+
+  Future<UserModel> retrieveUserFromTabe() async {
+    final Database db = await initializedDB();
+    final List<Map<String, Object?>> queryResult =
+        await db.query(userTableName);
+
+    if (queryResult.isNotEmpty) {
+      return queryResult.map((e) => UserModel.fromJson(e)).first;
+    } else {
+      return UserModel();
+    }
   }
 }

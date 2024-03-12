@@ -11,6 +11,8 @@ import 'package:medical_app/components/drawer.dart';
 import 'package:medical_app/constants/colors_const.dart';
 import 'package:medical_app/constants/image_const.dart';
 import 'package:medical_app/constants/string_const.dart';
+import 'package:medical_app/models/userModel.dart';
+import 'package:medical_app/utilities/database_provider.dart';
 
 class LabUpload extends StatefulWidget {
   final selectedIndex;
@@ -49,8 +51,12 @@ class _LabUploadState extends State<LabUpload> {
   ];
 
   final List pages = [
-    Pages(),
-    Pages1(),
+    const Pages(),
+    const Pages1(),
+    const Pages(),
+    const Pages1(),
+    const Pages(),
+    const Pages1(),
   ];
 
   List<Color> gradiantcontainerColor = [
@@ -58,8 +64,8 @@ class _LabUploadState extends State<LabUpload> {
     const Color(0xff3171DD)
   ];
 
-  PageController _pageController = PageController();
-  ScrollController _listController = ScrollController();
+  final PageController _pageController = PageController();
+  final ScrollController _listController = ScrollController();
 
   final ScrollController controller = ScrollController();
   @override
@@ -69,22 +75,49 @@ class _LabUploadState extends State<LabUpload> {
     super.dispose();
   }
 
-  void _updatePageIndex(int index) {
+  int stickyIndex = 0;
+
+  _updatePageIndex(int index) {
+    // Update selectedIndex
     setState(() {
       selectedIndex = index;
+      stickyIndex = index;
     });
 
-    _pageController.animateToPage(
-      index,
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.easeInOut,
-    );
+    // Move selected item to the first position in the lists
+    String selectedImage = gridImages[index];
+    String selectedText = gridImagesText[index];
 
-    _listController.animateTo(
-      index * (MediaQuery.of(context).size.width / 3 + 2 * 8),
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.easeInOut,
-    );
+    // Remove the selected item from the original position
+    gridImages.removeAt(index);
+    gridImagesText.removeAt(index);
+
+    // Insert the selected item at the beginning of the lists
+    gridImages.insert(0, selectedImage);
+    gridImagesText.insert(0, selectedText);
+
+    // Scroll to the top
+    controller.jumpTo(0);
+
+    // Adjust the PageView index
+    _pageController.jumpToPage(0); // Update the PageView index
+  }
+
+  UserModel user = UserModel();
+  DatabaseProvider db = DatabaseProvider();
+
+  getUser() async {
+    await db.retrieveUserFromTabe().then((value) {
+      setState(() {
+        user = value;
+      });
+    });
+  }
+
+  @override
+  void initState() {
+    getUser();
+    super.initState();
   }
 
   @override
@@ -112,13 +145,23 @@ class _LabUploadState extends State<LabUpload> {
             onTap: () {
               Scaffold.of(context).openDrawer();
             },
-            child: Image.asset(
-              'assets/user.png',
-              scale: 14,
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: CircleAvatar(
+                backgroundColor: Colors.green,
+                child: Text(
+                  user.userName.toString().substring(0, 2).toUpperCase(),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18.0,
+                    color: Colors.black, // Adjust the text color as needed
+                  ),
+                ),
+              ),
             ),
           );
         }),
-        shape: ContinuousRectangleBorder(
+        shape: const ContinuousRectangleBorder(
           borderRadius: BorderRadius.only(
             bottomRight: Radius.circular(100), // Adjust the radius as needed
           ),
@@ -156,7 +199,7 @@ class _LabUploadState extends State<LabUpload> {
                   ),
                   Padding(
                     padding: const EdgeInsets.only(left: 20),
-                    child: Container(
+                    child: SizedBox(
                       height: size.width / 3.6,
                       child: ListView.builder(
                         controller: controller,
@@ -175,7 +218,7 @@ class _LabUploadState extends State<LabUpload> {
                                 width: size.width / 3,
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
-                                    colors: selectedIndex == index
+                                    colors: stickyIndex == index
                                         ? [
                                             Colors.transparent,
                                             Colors.transparent
@@ -193,7 +236,7 @@ class _LabUploadState extends State<LabUpload> {
                                     Image.asset(
                                       gridImages[index],
                                       scale: 3,
-                                      color: selectedIndex == index
+                                      color: stickyIndex == index
                                           ? Colors.green
                                           : whiteColor,
                                     ),
@@ -203,7 +246,7 @@ class _LabUploadState extends State<LabUpload> {
                                     Text(
                                       gridImagesText[index],
                                       style: TextStyle(
-                                          color: selectedIndex == index
+                                          color: stickyIndex == index
                                               ? Colors.green
                                               : whiteColor,
                                           fontWeight: FontWeight.w700),
@@ -224,7 +267,7 @@ class _LabUploadState extends State<LabUpload> {
               ),
             ]),
           ),
-          BottomContainer()
+          const BottomContainer()
         ],
       ),
     );
@@ -476,7 +519,7 @@ class _Pages1State extends State<Pages1> {
             padding: const EdgeInsets.symmetric(horizontal: 27),
             child: Column(
               children: [
-                SizedBox(
+                const SizedBox(
                   height: 15,
                 ),
                 InkWell(

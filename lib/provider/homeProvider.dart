@@ -19,10 +19,10 @@ class HomeProvider extends ChangeNotifier {
         print('-------------getuser------response------------${response}');
 
         if (response != null) {
-          await DatabaseProvider.clearUserTable();
+          await DatabaseProvider().clearUserTable();
 
           UserModel user = UserModel.fromJson(response);
-          await DatabaseProvider.insertUser(user);
+          await DatabaseProvider().insertUser(user);
 
           print('----------user----------${user}');
 
