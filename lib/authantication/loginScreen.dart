@@ -4,7 +4,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:medical_app/Screen/home_screen.dart';
-import 'package:medical_app/authantication/OtpScreen.dart';
+import 'package:medical_app/authantication/forgot_password.dart';
 import 'package:medical_app/authantication/RegisterationScreen.dart';
 import 'package:medical_app/constants/ApiConst.dart';
 import 'package:medical_app/constants/colors_const.dart';
@@ -47,29 +47,36 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> updateUser(BuildContext context) async {
-    try {
-      final url = Uri.parse(
-        'http://ec2-54-159-209-201.compute-1.amazonaws.com:8080/user-api/validate',
-      );
+    if (emailController.text.isNotEmpty && passController.text.isNotEmpty) {
+      try {
+        final url = Uri.parse(
+          'http://ec2-54-159-209-201.compute-1.amazonaws.com:8080/user-api/validate',
+        );
 
-      final response = await http.post(
-        url,
-        headers: {
-          'accept': '*/*',
-          'Content-Type': 'application/json',
-        },
-        body: json.encode({
-          'userName': emailController.text,
-          'password': passController.text,
-        }),
-      );
+        final response = await http.post(
+          url,
+          headers: {
+            'accept': '*/*',
+            'Content-Type': 'application/json',
+          },
+          body: json.encode({
+            'userName': emailController.text,
+            'password': passController.text,
+          }),
+        );
 
-      final bool success = json.decode(response.body);
+        final bool success = json.decode(response.body);
 
-      print('Response Status Code: ${response.statusCode}');
-      print('Response Body: $success');
+        print('Response Status Code: ${response.statusCode}');
+        print('Response Body: $success');
 
-      if (success == true) {
+        var user = UserModel(
+            userName: emailController.text, password: passController.text);
+        await DatabaseProvider().clearUserTable();
+        await DatabaseProvider().insertUser(user);
+
+        print('-----------user model-----${user.userName}');
+
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -92,6 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
           homeScreen,
           (route) => false,
         );
+
         showDialog(
             barrierDismissible: true,
             context: context,
@@ -123,44 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
               );
 
               return AlertDialog(
-                title: const Text("User logged in successfully"),
-                actions: [continueButton],
-                actionsAlignment: MainAxisAlignment.center,
-              );
-            });
-      } else {
-        showDialog(
-            barrierDismissible: true,
-            context: context,
-            builder: (BuildContext context) {
-              Widget continueButton = TextButton(
-                child: Container(
-                  decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                          colors: [Color(0xff55BE00), Color(0xff3171DD)],
-                          end: Alignment.bottomRight,
-                          begin: Alignment.topLeft),
-                      borderRadius: BorderRadius.circular(7)),
-                  child: const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text(
-                        "OK",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20),
-                      ),
-                    ),
-                  ),
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              );
-
-              return AlertDialog(
-                title: const Text("Invalide Credentials"),
+                title: const Text("User logged in Successfully"),
                 actions: [continueButton],
                 actionsAlignment: MainAxisAlignment.center,
               );
@@ -204,8 +175,48 @@ class _LoginScreenState extends State<LoginScreen> {
                 );
               });
         }
+      } catch (e) {
+        showDialog(
+            barrierDismissible: true,
+            context: context,
+            builder: (BuildContext context) {
+              Widget continueButton = TextButton(
+                child: Container(
+                  decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                          colors: [Color(0xff55BE00), Color(0xff3171DD)],
+                          end: Alignment.bottomRight,
+                          begin: Alignment.topLeft),
+                      borderRadius: BorderRadius.circular(7)),
+                  child: const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        "OK",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20),
+                      ),
+                    ),
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              );
+
+              return AlertDialog(
+                title: const Text("Error while updating user"),
+                content: Text('$e}'),
+                actions: [continueButton],
+                actionsAlignment: MainAxisAlignment.center,
+              );
+            });
+      } finally {
+        Navigator.pop(context); // Dismiss the updating user pop-up
       }
-    } catch (e) {
+    } else {
       showDialog(
           barrierDismissible: true,
           context: context,
@@ -237,14 +248,11 @@ class _LoginScreenState extends State<LoginScreen> {
             );
 
             return AlertDialog(
-              title: const Text("Error while updating user"),
-              content: Text('$e}'),
+              title: const Text("Invalide Credentials"),
               actions: [continueButton],
               actionsAlignment: MainAxisAlignment.center,
             );
           });
-    } finally {
-      Navigator.pop(context); // Dismiss the updating user pop-up
     }
   }
 
@@ -373,31 +381,24 @@ class _LoginScreenState extends State<LoginScreen> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: const Text("Are you sure you want to close the App?"),
+              title: Text("Are you sure you want to close the App?"),
               actions: [
                 TextButton(
-                  child: const Text(
-                    "No",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                      fontSize: 20,
-                    ),
-                  ),
                   onPressed: () {
                     Navigator.of(context).pop(false); // User tapped "No"
                   },
-                ),
-                TextButton(
                   child: Container(
                     width: 70,
                     decoration: BoxDecoration(
-                      color: baseColor,
+                      gradient: const LinearGradient(
+                          colors: [Color(0xff55BE00), Color(0xff3171DD)],
+                          end: Alignment.bottomRight,
+                          begin: Alignment.topLeft),
                       borderRadius: BorderRadius.circular(7),
                     ),
-                    child: const Center(
-                      child: Text(
-                        "Yes",
+                    child: Center(
+                      child: const Text(
+                        "No",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
@@ -406,9 +407,19 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
+                ),
+                TextButton(
                   onPressed: () {
                     Navigator.of(context).pop(true); // User tapped "Yes"
                   },
+                  child: Text(
+                    "Yes",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                      fontSize: 20,
+                    ),
+                  ),
                 ),
               ],
             );
@@ -539,19 +550,19 @@ class _LoginScreenState extends State<LoginScreen> {
                                                         vertical: 12.0,
                                                         horizontal: 16.0),
                                               ),
-                                              validator: (authResult) {
-                                                if (authResult!.isEmpty ||
-                                                    !RegExp(r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")
-                                                        .hasMatch(authResult)) {
-                                                  return 'Please enter a valid email/username';
-                                                }
+                                              // validator: (authResult) {
+                                              //   if (authResult!.isEmpty ||
+                                              //       !RegExp(r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")
+                                              //           .hasMatch(authResult)) {
+                                              //     return 'Please enter a valid email/username';
+                                              //   }
 
-                                                if (!_isGmail(authResult)) {
-                                                  return 'Please enter a valid email address';
-                                                }
+                                              //   if (!_isGmail(authResult)) {
+                                              //     return 'Please enter a valid email address';
+                                              //   }
 
-                                                return null;
-                                              },
+                                              //   return null;
+                                              // },
                                               keyboardType:
                                                   TextInputType.emailAddress,
                                             ),
@@ -618,7 +629,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     height: 20,
                                   ),
                                   GestureDetector(
-                                    onTap: validateAndSave,
+                                    onTap: () => updateUser(context),
                                     child: Container(
                                       height: 50,
                                       decoration: BoxDecoration(
@@ -654,7 +665,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) =>
-                                              const OtpScreen()));
+                                              const ForgotPassword()));
                                 },
                                 child: const Text(
                                   "Forgot Password?",

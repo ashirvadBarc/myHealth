@@ -100,7 +100,7 @@ class _LabUploadState extends State<LabUpload> {
     controller.jumpTo(0);
 
     // Adjust the PageView index
-    _pageController.jumpToPage(0); // Update the PageView index
+    _pageController.jumpToPage(index); // Update the PageView index
   }
 
   UserModel user = UserModel();
@@ -218,7 +218,7 @@ class _LabUploadState extends State<LabUpload> {
                                 width: size.width / 3,
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
-                                    colors: stickyIndex == index
+                                    colors: index == 0
                                         ? [
                                             Colors.transparent,
                                             Colors.transparent
@@ -236,7 +236,7 @@ class _LabUploadState extends State<LabUpload> {
                                     Image.asset(
                                       gridImages[index],
                                       scale: 3,
-                                      color: stickyIndex == index
+                                      color: index == 0
                                           ? Colors.green
                                           : whiteColor,
                                     ),
@@ -246,7 +246,7 @@ class _LabUploadState extends State<LabUpload> {
                                     Text(
                                       gridImagesText[index],
                                       style: TextStyle(
-                                          color: stickyIndex == index
+                                          color: index == 0
                                               ? Colors.green
                                               : whiteColor,
                                           fontWeight: FontWeight.w700),

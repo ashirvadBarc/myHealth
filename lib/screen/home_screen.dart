@@ -7,6 +7,8 @@ import 'package:medical_app/constants/image_const.dart';
 import 'package:medical_app/constants/string_const.dart';
 import 'package:medical_app/models/userModel.dart';
 import 'package:medical_app/routes.dart';
+
+import 'package:http/http.dart' as http;
 import 'package:medical_app/utilities/database_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -71,18 +73,30 @@ class _HomeScreenState extends State<HomeScreen> {
           builder: (BuildContext context) {
             return AlertDialog(
               title: Text(
-                  "${user.userName},Are you sure you want to close the App?"),
+                  "${user.userName}, Are you sure you want to close the App?"),
               actions: [
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop(false); // User tapped "No"
                   },
-                  child: const Text(
-                    "No",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                      fontSize: 20,
+                  child: Container(
+                    width: 70,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                          colors: [Color(0xff55BE00), Color(0xff3171DD)],
+                          end: Alignment.bottomRight,
+                          begin: Alignment.topLeft),
+                      borderRadius: BorderRadius.circular(7),
+                    ),
+                    child: Center(
+                      child: const Text(
+                        "No",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontSize: 20,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -90,21 +104,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   onPressed: () {
                     Navigator.of(context).pop(true); // User tapped "Yes"
                   },
-                  child: Container(
-                    width: 70,
-                    decoration: BoxDecoration(
-                      color: baseColor,
-                      borderRadius: BorderRadius.circular(7),
-                    ),
-                    child: const Center(
-                      child: Text(
-                        "Yes",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontSize: 20,
-                        ),
-                      ),
+                  child: Text(
+                    "Yes",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                      fontSize: 20,
                     ),
                   ),
                 ),
@@ -266,7 +271,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.only(bottom: 12),
                 child: InkWell(
                   onTap: () {
-                    _logout();
+                    logOutUser(user.userName.toString());
                   },
                   child: Container(
                     height: 50,
@@ -315,9 +320,26 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> showLogoutDialog(BuildContext context) async {
     // set up the buttons
     Widget cancelButton = TextButton(
-      child: const Text(
-        "Cancel",
-        style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+      child: Container(
+        // width: 70,
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+              colors: [Color(0xff55BE00), Color(0xff3171DD)],
+              end: Alignment.bottomRight,
+              begin: Alignment.topLeft),
+          borderRadius: BorderRadius.circular(7),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: const Text(
+            "Cancel",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 20,
+            ),
+          ),
+        ),
       ),
       onPressed: () {
         Navigator.of(context, rootNavigator: true).pop('dialog');
@@ -327,7 +349,11 @@ class _HomeScreenState extends State<HomeScreen> {
     Widget continueButton = TextButton(
       child: const Text(
         "Continue",
-        style: TextStyle(fontWeight: FontWeight.bold),
+        style: TextStyle(
+          // fontWeight: FontWeight.bold,
+          color: Colors.black,
+          fontSize: 20,
+        ),
       ),
       onPressed: () async {
         print('----continue button tapped');
@@ -358,5 +384,27 @@ class _HomeScreenState extends State<HomeScreen> {
         return alert;
       },
     );
+  }
+
+  logOutUser(String userName) async {
+    try {
+      // final username = user.userName;
+      // await DatabaseProvider().clearUserTable();
+      // setState(() {
+      //   user = UserModel();
+      // });
+      final url = Uri.parse(
+          'http://ec2-54-159-209-201.compute-1.amazonaws.com:8080/user-api/unsubscribe/${userName}');
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        await showLogoutDialog(context);
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 }

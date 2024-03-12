@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:medical_app/constants/colors_const.dart';
 import 'package:medical_app/constants/image_const.dart';
 
-class OtpScreen extends StatefulWidget {
-  const OtpScreen({super.key});
+class ForgotPassword extends StatefulWidget {
+  const ForgotPassword({super.key});
 
   @override
-  State<OtpScreen> createState() => _OtpScreenState();
+  State<ForgotPassword> createState() => _ForgotPasswordState();
 }
 
-class _OtpScreenState extends State<OtpScreen> {
+class _ForgotPasswordState extends State<ForgotPassword> {
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController emailController = TextEditingController();
@@ -28,7 +28,7 @@ class _OtpScreenState extends State<OtpScreen> {
               Container(
                 height: 110,
                 width: size.width * .28,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                     boxShadow: [
                       BoxShadow(color: Colors.black38, blurRadius: 2)
                     ],
@@ -55,14 +55,14 @@ class _OtpScreenState extends State<OtpScreen> {
                   height: size.height * .66,
                   decoration: BoxDecoration(
                     border: Border.all(color: blueColor, width: 2),
-                    image: DecorationImage(
+                    image: const DecorationImage(
                       image: AssetImage(
                         bgImg,
                       ),
                       filterQuality: FilterQuality.high,
                       fit: BoxFit.fitWidth,
                     ),
-                    borderRadius: BorderRadius.only(
+                    borderRadius: const BorderRadius.only(
                       topRight: Radius.circular(35),
                       topLeft: Radius.circular(35),
                     ),
@@ -99,7 +99,7 @@ class _OtpScreenState extends State<OtpScreen> {
                               key: _formKey,
                               child: Column(
                                 children: [
-                                  Align(
+                                  const Align(
                                       alignment: Alignment.centerLeft,
                                       child: Text(
                                         "Email ID/Username",
@@ -143,7 +143,7 @@ class _OtpScreenState extends State<OtpScreen> {
                                       ),
                                     ),
                                   ),
-                                  Align(
+                                  const Align(
                                       alignment: Alignment.centerLeft,
                                       child: Text(
                                         "Mobile Number",
@@ -233,7 +233,7 @@ class _OtpScreenState extends State<OtpScreen> {
                                 ],
                               ),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 20,
                             ),
                             GestureDetector(

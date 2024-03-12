@@ -117,35 +117,78 @@ class _RegisterScreenState extends State<RegisterScreen> {
             "creationDate": "2024-01-29T08:57:00.445Z"
           }),
         );
-        await DatabaseProvider().clearUserTable();
 
-        var user = UserModel(
-          firstName: firstName.text,
-          lastName: LastName.text,
-          email: emailController.text,
-          dob: DOBcontroller.text,
-          pin: pinController.text,
-          phone: phoneController.text,
-          password: passController.text,
-          userName: userNameController.text,
-        );
+        if (response.statusCode == 200) {
+          await DatabaseProvider().clearUserTable();
 
-        print('----------register use  response-------------${response.body}');
-        print('----------  response  code-------------${response.statusCode}');
+          var user = UserModel(
+            firstName: firstName.text,
+            lastName: LastName.text,
+            email: emailController.text,
+            dob: DOBcontroller.text,
+            pin: pinController.text,
+            phone: phoneController.text,
+            password: passController.text,
+            userName: userNameController.text,
+          );
 
-        await DatabaseProvider().insertUser(user).then((value) {
-          firstName.clear();
-          LastName.clear();
-          emailController.clear();
-          DOBcontroller.clear();
-          pinController.clear();
-          phoneController.clear();
-          passController.clear();
-          userNameController.clear();
+          print(
+              '----------register use  response-------------${response.body}');
 
-          Navigator.pushNamedAndRemoveUntil(
-              context, loginScreen, (route) => false);
-        });
+          print("-----username------${user.userName}");
+          print("-----password------${user.password}");
+
+          await DatabaseProvider().insertUser(user).then((value) {
+            firstName.clear();
+            LastName.clear();
+            emailController.clear();
+            DOBcontroller.clear();
+            pinController.clear();
+            phoneController.clear();
+            passController.clear();
+            userNameController.clear();
+
+            Navigator.pushNamedAndRemoveUntil(
+                context, loginScreen, (route) => false);
+          });
+        } else {
+          showDialog(
+              barrierDismissible: true,
+              context: context,
+              builder: (BuildContext context) {
+                Widget continueButton = TextButton(
+                  child: Container(
+                    decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                            colors: [Color(0xff55BE00), Color(0xff3171DD)],
+                            end: Alignment.bottomRight,
+                            begin: Alignment.topLeft),
+                        borderRadius: BorderRadius.circular(7)),
+                    child: const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text(
+                          "OK",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20),
+                        ),
+                      ),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                );
+
+                return AlertDialog(
+                  title: const Text("something went wrong"),
+                  actions: [continueButton],
+                  actionsAlignment: MainAxisAlignment.center,
+                );
+              });
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Something went wrong')));
