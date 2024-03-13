@@ -31,7 +31,7 @@ class LabUpload extends StatefulWidget {
 
 class _LabUploadState extends State<LabUpload> {
   int? selectedIndex;
-  _LabUploadState({this.selectedIndex});
+  _LabUploadState({required this.selectedIndex});
   final List gridImages = [
     labImg,
     medicineImg,
@@ -53,10 +53,6 @@ class _LabUploadState extends State<LabUpload> {
   final List pages = [
     const Pages(),
     const Pages1(),
-    const Pages(),
-    const Pages1(),
-    const Pages(),
-    const Pages1(),
   ];
 
   List<Color> gradiantcontainerColor = [
@@ -75,32 +71,25 @@ class _LabUploadState extends State<LabUpload> {
     super.dispose();
   }
 
-  int stickyIndex = 0;
-
   _updatePageIndex(int index) {
-    // Update selectedIndex
     setState(() {
       selectedIndex = index;
-      stickyIndex = index;
     });
 
-    // Move selected item to the first position in the lists
-    String selectedImage = gridImages[index];
-    String selectedText = gridImagesText[index];
+    // // Move selected item to the first position in the lists
+    // String selectedImage = gridImages[index];
+    // String selectedText = gridImagesText[index];
 
-    // Remove the selected item from the original position
-    gridImages.removeAt(index);
-    gridImagesText.removeAt(index);
+    // // Remove the selected item from the original position
+    // gridImages.removeAt(index);
+    // gridImagesText.removeAt(index);
 
-    // Insert the selected item at the beginning of the lists
-    gridImages.insert(0, selectedImage);
-    gridImagesText.insert(0, selectedText);
+    // gridImages.insert(0, selectedImage);
+    // gridImagesText.insert(0, selectedText);
 
-    // Scroll to the top
-    controller.jumpTo(0);
+    // controller.jumpTo(0);
 
-    // Adjust the PageView index
-    _pageController.jumpToPage(index); // Update the PageView index
+    _pageController.jumpToPage(index);
   }
 
   UserModel user = UserModel();
@@ -128,9 +117,13 @@ class _LabUploadState extends State<LabUpload> {
         centerTitle: true,
         elevation: 1,
         automaticallyImplyLeading: true,
-        title: Image.asset(
-          'assets/logo.png',
-          scale: 5,
+        title: Text(
+          gridImagesText[selectedIndex ?? 0],
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
         ),
         actions: [
           Padding(
@@ -189,6 +182,7 @@ class _LabUploadState extends State<LabUpload> {
                       controller: _pageController,
                       itemCount: pages.length,
                       scrollDirection: Axis.horizontal,
+                      physics: const NeverScrollableScrollPhysics(),
                       itemBuilder: (ctx, index) {
                         return pages[index];
                       },
@@ -198,65 +192,130 @@ class _LabUploadState extends State<LabUpload> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(left: 20),
+                    padding: const EdgeInsets.only(left: 10),
                     child: SizedBox(
                       height: size.width / 3.6,
-                      child: ListView.builder(
-                        controller: controller,
-                        itemCount: gridImages.length,
-                        scrollDirection: Axis.horizontal,
-                        shrinkWrap: true,
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        itemBuilder: ((context, index) {
-                          return InkWell(
-                            onTap: () {
-                              _updatePageIndex(index);
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Container(
-                                width: size.width / 3,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: index == 0
-                                        ? [
-                                            Colors.transparent,
-                                            Colors.transparent
-                                          ]
-                                        : gradiantcontainerColor,
-                                    end: Alignment.bottomRight,
-                                    begin: Alignment.topLeft,
+                      child: Row(
+                        children: [
+                          // ListView.builder(
+                          //   itemCount: 1,
+                          //   controller: controller,
+                          //   scrollDirection: Axis.horizontal,
+                          //   shrinkWrap: true,
+                          //   padding: EdgeInsets.zero,
+                          //   itemBuilder: (context, index) {
+                          //     return Padding(
+                          //       padding: const EdgeInsets.all(8.0),
+                          //       child: Container(
+                          //         width: size.width / 3,
+                          //         decoration: BoxDecoration(
+                          //           gradient: LinearGradient(
+                          //             colors: selectedIndex == index
+                          //                 ? gradiantcontainerColor
+                          //                 : [
+                          //                     Colors.transparent,
+                          //                     Colors.transparent
+                          //                   ],
+                          //             end: Alignment.bottomRight,
+                          //             begin: Alignment.topLeft,
+                          //           ),
+                          //           border: Border.all(color: gridTextColor),
+                          //           borderRadius: BorderRadius.circular(8),
+                          //         ),
+                          //         child: Column(
+                          //           mainAxisAlignment: MainAxisAlignment.center,
+                          //           children: [
+                          //             Image.asset(
+                          //               gridImages[index],
+                          //               scale: 3,
+                          //               color: selectedIndex == index
+                          //                   ? whiteColor
+                          //                   : Colors.green,
+                          //             ),
+                          //             const SizedBox(
+                          //               height: 7,
+                          //             ),
+                          //             Text(
+                          //               gridImagesText[index],
+                          //               style: TextStyle(
+                          //                   color: selectedIndex == index
+                          //                       ? whiteColor
+                          //                       : Colors.green,
+                          //                   fontWeight: FontWeight.w700),
+                          //             )
+                          //           ],
+                          //         ),
+                          //       ),
+                          //     );
+                          //   },
+                          // ),
+
+                          Flexible(
+                            child: ListView.builder(
+                              controller: controller,
+                              itemCount: gridImages.length,
+                              scrollDirection: Axis.horizontal,
+                              shrinkWrap: true,
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              itemBuilder: ((context, index) {
+                                return GestureDetector(
+                                  onTap: () {
+                                    _updatePageIndex(index);
+
+                                    print('---------index---${index}');
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Container(
+                                      width: size.width / 3,
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: selectedIndex == index
+                                              ? [
+                                                  Colors.transparent,
+                                                  Colors.transparent
+                                                ]
+                                              : gradiantcontainerColor,
+                                          end: Alignment.bottomRight,
+                                          begin: Alignment.topLeft,
+                                        ),
+                                        border: Border.all(
+                                            color: selectedIndex == index
+                                                ? gridTextColor
+                                                : Colors.transparent),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Image.asset(
+                                            gridImages[index],
+                                            scale: 3,
+                                            color: selectedIndex == index
+                                                ? Colors.green
+                                                : whiteColor,
+                                          ),
+                                          const SizedBox(
+                                            height: 7,
+                                          ),
+                                          Text(
+                                            gridImagesText[index],
+                                            style: TextStyle(
+                                                color: selectedIndex == index
+                                                    ? Colors.green
+                                                    : whiteColor,
+                                                fontWeight: FontWeight.w700),
+                                          )
+                                        ],
+                                      ),
+                                    ),
                                   ),
-                                  border: Border.all(color: gridTextColor),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Image.asset(
-                                      gridImages[index],
-                                      scale: 3,
-                                      color: index == 0
-                                          ? Colors.green
-                                          : whiteColor,
-                                    ),
-                                    const SizedBox(
-                                      height: 7,
-                                    ),
-                                    Text(
-                                      gridImagesText[index],
-                                      style: TextStyle(
-                                          color: index == 0
-                                              ? Colors.green
-                                              : whiteColor,
-                                          fontWeight: FontWeight.w700),
-                                    )
-                                  ],
-                                ),
-                              ),
+                                );
+                              }),
                             ),
-                          );
-                        }),
+                          ),
+                        ],
                       ),
                     ),
                   ),

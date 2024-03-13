@@ -5,11 +5,21 @@ import 'package:medical_app/routes.dart';
 import 'package:medical_app/utilities/apiClients.dart';
 import 'package:medical_app/utilities/database_provider.dart';
 
-import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 // Import your UserModel class
 
 class HomeProvider extends ChangeNotifier {
+  bool loading = false;
+  setLoader() {
+    loading = true;
+    notifyListeners();
+  }
+
+  hideLoader() {
+    loading = false;
+    notifyListeners();
+  }
+
   Future<void> getUserData(String userName, context) async {
     try {
       if (userName != null) {

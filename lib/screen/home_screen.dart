@@ -271,7 +271,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.only(bottom: 12),
                 child: InkWell(
                   onTap: () {
-                    logOutUser(user.userName.toString());
+                    showLogoutDialog(context, user.userName);
                   },
                   child: Container(
                     height: 50,
@@ -299,15 +299,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Future<void> _logout() async {
-    try {
-      print('-----1');
-      await showLogoutDialog(context);
-    } catch (e) {
-      print("----error from login---$e");
-    }
-  }
-
   Future<void> saveLoginStatus(bool isLoggedIn) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -317,7 +308,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> showLogoutDialog(BuildContext context) async {
+  Future showLogoutDialog(BuildContext context, userName) async {
     // set up the buttons
     Widget cancelButton = TextButton(
       child: Container(
@@ -356,6 +347,24 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       onPressed: () async {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return const AlertDialog(
+              content: Row(
+                children: [
+                  CircularProgressIndicator(
+                    color: Colors.green,
+                  ),
+                  SizedBox(width: 20),
+                  Text("Updating user..."),
+                ],
+              ),
+            );
+          },
+          barrierDismissible: false,
+        );
+        logOutUser(userName);
         print('----continue button tapped');
         await saveLoginStatus(false);
         Navigator.pushReplacementNamed(context, loginScreen);
@@ -388,17 +397,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
   logOutUser(String userName) async {
     try {
-      // final username = user.userName;
-      // await DatabaseProvider().clearUserTable();
-      // setState(() {
-      //   user = UserModel();
-      // });
+      final id = user.userName;
+      await DatabaseProvider().clearUserTable();
+      setState(() {
+        user = UserModel();
+      });
       final url = Uri.parse(
           'http://ec2-54-159-209-201.compute-1.amazonaws.com:8080/user-api/unsubscribe/${userName}');
       final response = await http.get(url);
 
+      print('---------logout response------------${response}');
+
       if (response.statusCode == 200) {
-        await showLogoutDialog(context);
+        // await showLogoutDialog(context);
         return true;
       } else {
         return false;

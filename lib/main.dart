@@ -30,9 +30,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Medical App',
-      theme: ThemeData(
-        useMaterial3: true,
-      ),
+      theme: ThemeData(useMaterial3: true, primarySwatch: Colors.green),
       routes: route,
       initialRoute: isLoggedIn! ? homeScreen : loginScreen,
     );

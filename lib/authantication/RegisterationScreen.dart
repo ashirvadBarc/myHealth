@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -150,6 +151,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
             Navigator.pushNamedAndRemoveUntil(
                 context, loginScreen, (route) => false);
+
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Registration Successfully')));
           });
         } else {
           showDialog(
