@@ -153,7 +153,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 context, loginScreen, (route) => false);
 
             ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Registration Successfully')));
+                const SnackBar(content: Text('Registration Successfully')));
           });
         } else {
           showDialog(

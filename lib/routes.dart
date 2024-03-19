@@ -16,7 +16,6 @@ final route = {
   // intialroute: (context) => const LoginScreen(),
   loginScreen: (context) => const LoginScreen(),
   homeScreen: (context) => HomeScreen(),
-  labUpload: (context) => const LabUpload(),
   medi_screen: (context) => MedicineScreen(
         selectedIndex: 0,
       ),

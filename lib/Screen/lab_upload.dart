@@ -106,6 +106,7 @@ class _LabUploadState extends State<LabUpload> {
   @override
   void initState() {
     getUser();
+
     super.initState();
   }
 
@@ -156,7 +157,7 @@ class _LabUploadState extends State<LabUpload> {
         }),
         shape: const ContinuousRectangleBorder(
           borderRadius: BorderRadius.only(
-            bottomRight: Radius.circular(100), // Adjust the radius as needed
+            bottomRight: Radius.circular(100),
           ),
         ),
       ),
@@ -258,6 +259,9 @@ class _LabUploadState extends State<LabUpload> {
                               shrinkWrap: true,
                               physics: const AlwaysScrollableScrollPhysics(),
                               itemBuilder: ((context, index) {
+                                if (selectedIndex == index) {
+                                  return const SizedBox.shrink();
+                                }
                                 return GestureDetector(
                                   onTap: () {
                                     _updatePageIndex(index);
@@ -293,7 +297,7 @@ class _LabUploadState extends State<LabUpload> {
                                             gridImages[index],
                                             scale: 3,
                                             color: selectedIndex == index
-                                                ? Colors.green
+                                                ? Colors.transparent
                                                 : whiteColor,
                                           ),
                                           const SizedBox(
@@ -303,7 +307,7 @@ class _LabUploadState extends State<LabUpload> {
                                             gridImagesText[index],
                                             style: TextStyle(
                                                 color: selectedIndex == index
-                                                    ? Colors.green
+                                                    ? Colors.transparent
                                                     : whiteColor,
                                                 fontWeight: FontWeight.w700),
                                           )
